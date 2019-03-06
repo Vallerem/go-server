@@ -24,10 +24,10 @@
 #   go-tests = true
 #   unused-packages = true
 
-[metadata.heroku]
-  root-package = "github.com/me/todo-go-server"
-  go-version = "go1.11.5"
-
 [prune]
   go-tests = true
   unused-packages = true
+
+[metadata.heroku]
+  root-package = "github.com/me/todo-go-server"
+  go-version = "go1.11.5"
