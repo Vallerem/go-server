@@ -5,4 +5,4 @@ build:
     - go
 
 run:
-  web: start-server
+  web: ./main

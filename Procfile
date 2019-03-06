@@ -1,1 +1,1 @@
-web: go-todo-api
+web: ./main
