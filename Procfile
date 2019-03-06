@@ -1,1 +1,1 @@
-web: ./app/bin/go-todo-api
+web: todo-go-server
