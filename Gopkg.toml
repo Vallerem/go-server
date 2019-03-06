@@ -26,7 +26,7 @@
 
 [metadata.heroku]
   root-package = "github.com/me/todo-go-server"
-  go-version = "go1.8.3"
+  go-version = "go1.11.5"
 
 [prune]
   go-tests = true
