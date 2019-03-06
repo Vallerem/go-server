@@ -1,1 +1,1 @@
-web: start-server
+web: todo-go-server
