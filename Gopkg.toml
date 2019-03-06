@@ -24,6 +24,9 @@
 #   go-tests = true
 #   unused-packages = true
 
+[metadata.heroku]
+  root-package = "github.com/me/todo-go-server"
+  go-version = "go1.8.3"
 
 [prune]
   go-tests = true
