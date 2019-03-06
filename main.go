@@ -43,6 +43,13 @@ func main() {
 
 	router := gin.Default()
 
+	router.LoadHTMLGlob("templates/*.tmpl.html")
+	router.Static("/static", "static")
+	
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.tmpl.html", nil)
+	})
+
 	v1 := router.Group("/api/v1/todos")
 	{
 		v1.POST("/", createTodo)
