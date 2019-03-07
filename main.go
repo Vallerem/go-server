@@ -9,17 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/joho/godotenv"
 )
 
 var db *gorm.DB
 
 func init() {
-	envErr := godotenv.Load()
-	// if envErr != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
-
 	dbusername := os.Getenv("DB_USERNAME")
 	dbpassword := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
