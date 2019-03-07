@@ -26,7 +26,7 @@ func init() {
 
 	//open a db connection
 	var err error
-	dbString := fmt.Sprintf("host=localhost port=5432 user=%s dbname=%s password=%s sslmode=disable", dbusername, dbname, dbpassword)
+	dbString := fmt.Sprintf("host=localhost port=5432 user=%s dbname=%s password=%s", dbusername, dbname, dbpassword)
 
 	db, err = gorm.Open("postgres", dbString)
 	if err != nil {
