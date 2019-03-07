@@ -60,7 +60,7 @@ func main() {
 	}
 
 	defer db.Close()
-	router.Run(":3000")
+	router.Run(":" + os.Getenv("PORT"))
 }
 
 type (

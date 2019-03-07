@@ -1,1 +1,1 @@
-web: ./bin/todo-go-server
+web: todo-go-server
