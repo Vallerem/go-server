@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 	"log"
 	"net/http"
 	"os"
@@ -20,15 +20,10 @@ func init() {
 		log.Printf("Error loading .env file")
 	}
 
-	dbusername := os.Getenv("DB_USERNAME")
-	dbpassword := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-
 	//open a db connection
 	var err error
-	dbString := fmt.Sprintf("host=localhost port=5432 user=%s dbname=%s password=%s", dbusername, dbname, dbpassword)
-
-	db, err = gorm.Open("postgres", dbString)
+	dbUrl := os.Getenv("DATABASE_URL")
+	db, err = gorm.Open("postgres", dbUrl)
 	if err != nil {
 		panic(err)
 	}
