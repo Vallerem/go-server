@@ -16,9 +16,9 @@ var db *gorm.DB
 
 func init() {
 	envErr := godotenv.Load()
-	if envErr != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// if envErr != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 
 	dbusername := os.Getenv("DB_USERNAME")
 	dbpassword := os.Getenv("DB_PASSWORD")
