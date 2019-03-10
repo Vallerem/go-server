@@ -2,147 +2,45 @@ package main
 
 import (
 	// "fmt"
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/joho/godotenv"
+
+	// "github.com/appleboy/gin-jwt"
+	t "github.com/me/todo-go-server/src/todos"
+	s "github.com/me/todo-go-server/src/shared"
 )
 
-var db *gorm.DB
-
-func init() {
-	envErr := godotenv.Load()
-	if envErr != nil {
-		log.Printf("Error loading .env file")
-	}
-
-	//open a db connection
-	var err error
-	dbUrl := os.Getenv("DATABASE_URL")
-	db, err = gorm.Open("postgres", dbUrl)
-	if err != nil {
-		panic(err)
-	}
-
-	log.Printf("Connected to DB")
-
-	//Migrate the schema
-	db.AutoMigrate(&todoModel{})
+func Migrate(db *gorm.DB) {
+	db.AutoMigrate(&t.TodoModel{})
 }
 
 func main() {
+
+	db := s.Init()
+	Migrate(db)
+	defer db.Close()
 
 	router := gin.Default()
 
 	router.LoadHTMLGlob("templates/*.tmpl.html")
 	router.Static("/static", "static")
-	
+
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl.html", nil)
 	})
 
 	v1 := router.Group("/api/v1/todos")
 	{
-		v1.POST("/", createTodo)
-		v1.GET("/", fetchTodos)
-		v1.GET("/:id", fetchSingleTodo)
-		v1.PUT("/:id", updateTodo)
-		v1.DELETE("/:id", deleteTodo)
+		v1.POST("/", t.CreateTodo)
+		v1.GET("/", t.FetchTodos)
+		v1.GET("/:id", t.FetchSingleTodo)
+		v1.PUT("/:id", t.UpdateTodo)
+		v1.DELETE("/:id", t.DeleteTodo)
 	}
 
-	defer db.Close()
 	router.Run(":" + os.Getenv("PORT"))
-}
-
-type (
-	todoModel struct {
-		gorm.Model
-		Title     string `json:"title"`
-		Completed bool   `json:"completed"`
-	}
-
-	// Formated Todo
-	transformedTodo struct {
-		ID        uint   `json:"id"`
-		Title     string `json:"title"`
-		Completed bool   `json:"completed"`
-	}
-)
-
-// Fetch all Todos
-func fetchTodos(c *gin.Context) {
-	var todos []todoModel
-	db.Find(&todos)
-
-	if len(todos) <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
-		return
-	}
-
-	var _todos []transformedTodo
-	for _, item := range todos {
-		_todos = append(_todos, transformedTodo{ID: item.ID, Title: item.Title, Completed: item.Completed})
-	}
-
-	c.JSON(http.StatusOK, _todos)
-}
-
-// Fetch single Todo
-func fetchSingleTodo(c *gin.Context) {
-	var todo todoModel
-	todoID := c.Param("id")
-
-	db.First(&todo, todoID)
-
-	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
-		return
-	}
-
-	c.JSON(http.StatusOK, todo)
-}
-
-// Create new todo
-func createTodo(c *gin.Context) {
-	var todo todoModel
-	c.BindJSON(&todo)
-	db.Save(&todo)
-	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "message": "Todo item created successfully!", "todo": todo})
-}
-
-// Update :id selected Todo
-func updateTodo(c *gin.Context) {
-	var jsonTodo, todo todoModel
-	c.BindJSON(&jsonTodo)
-	todoID := c.Param("id")
-
-	db.First(&todo, todoID)
-	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
-		return
-	}
-
-	db.Model(&todo).Updates(map[string]interface{}{"title": jsonTodo.Title, "Completed": jsonTodo.Completed})
-
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Todo updated successfully!", "todo": todo})
-}
-
-// Delete :id selected Todo
-func deleteTodo(c *gin.Context) {
-	var todo todoModel
-	todoID := c.Param("id")
-
-	db.First(&todo, todoID)
-
-	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
-		return
-	}
-
-	db.Delete(&todo)
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Todo deleted successfully!", "deletedID": todo.ID})
 }
