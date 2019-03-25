@@ -30,4 +30,7 @@
 
 [metadata.heroku]
   root-package = "github.com/me/todo-go-server"
-  go-version = "go1.11.5"
+  go-version = "go1.12"
+[[constraint]]
+  name = "github.com/appleboy/gin-jwt"
+  version = "2.5.0"
