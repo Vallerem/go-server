@@ -1,45 +1,23 @@
 package main
 
 import (
-	// Hola tio asdkasjkdaskd asdasd
-	// "fmt"
 	"net/http"
 	"os"
 
-	// jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
-	// "github.com/appleboy/gin-jwt"
-
 	a "github.com/me/todo-go-server/src/auth"
+	m "github.com/me/todo-go-server/src/models"
 	s "github.com/me/todo-go-server/src/shared"
 	t "github.com/me/todo-go-server/src/todos"
+	u "github.com/me/todo-go-server/src/users"
 )
 
 func Migrate(db *gorm.DB) {
-	db.AutoMigrate(&t.TodoModel{})
+	db.AutoMigrate(&m.UserModel{}, &m.TodoModel{})
 }
-
-var identityKey = "id"
-
-// User demo
-type User struct {
-	UserName  string
-	FirstName string
-	LastName  string
-}
-
-// func helloHandler(c *gin.Context) {
-// 	claims := jwt.ExtractClaims(c)
-// 	user, _ := c.Get(identityKey)
-// 	c.JSON(200, gin.H{
-// 		"userID":   claims["id"],
-// 		"userName": user.(*User).UserName,
-// 		"text":     "Hello World.",
-// 	})
-// }
 
 func main() {
 
@@ -75,6 +53,7 @@ func main() {
 	}
 
 	router.POST("/login", authMiddleware.LoginHandler)
+	router.POST("/signup", u.UsersRegistration)
 
 	router.Run(":" + os.Getenv("PORT"))
 }
