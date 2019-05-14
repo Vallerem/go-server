@@ -6,12 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	s "github.com/me/todo-go-server/src/shared"
+	m "github.com/me/todo-go-server/src/models"
 )
 
 // Fetch all Todos
 func FetchTodos(c *gin.Context) {
 	db := s.GetDB()
-	var todos []TodoModel
+	var todos []m.TodoModel
 	if err := db.Find(&todos).Error; err != nil {
 		if len(todos) <= 0 {
 			c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
@@ -19,9 +20,9 @@ func FetchTodos(c *gin.Context) {
 		}
 		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Something went wrong"})
 	} else {
-		var _todos []TransformedTodo
+		var _todos []m.TransformedTodo
 		for _, item := range todos {
-			_todos = append(_todos, TransformedTodo{ID: item.ID, Title: item.Title, Completed: item.Completed})
+			_todos = append(_todos, m.TransformedTodo{ID: item.ID, Title: item.Title, Completed: item.Completed})
 		}
 		c.JSON(http.StatusOK, _todos)
 	}
@@ -30,7 +31,7 @@ func FetchTodos(c *gin.Context) {
 // Fetch single Todo
 func FetchSingleTodo(c *gin.Context) {
 	db := s.GetDB()
-	var todo TodoModel
+	var todo m.TodoModel
 	todoID := c.Param("id")
 
 	if err := db.First(&todo, todoID).Error; err != nil {
@@ -47,7 +48,7 @@ func FetchSingleTodo(c *gin.Context) {
 // Create new todo
 func CreateTodo(c *gin.Context) {
 	db := s.GetDB()
-	var todo TodoModel
+	var todo m.TodoModel
 	c.BindJSON(&todo)
 	if err := db.Save(&todo).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Something went wrong"})
@@ -59,7 +60,7 @@ func CreateTodo(c *gin.Context) {
 // Update :id selected Todo
 func UpdateTodo(c *gin.Context) {
 	db := s.GetDB()
-	var jsonTodo, todo TodoModel
+	var jsonTodo, todo m.TodoModel
 	c.BindJSON(&jsonTodo)
 	todoID := c.Param("id")
 
@@ -85,7 +86,7 @@ func UpdateTodo(c *gin.Context) {
 // Delete :id selected Todo
 func DeleteTodo(c *gin.Context) {
 	db := s.GetDB()
-	var todo TodoModel
+	var todo m.TodoModel
 	todoID := c.Param("id")
 
 	if err := db.First(&todo, todoID).Error; err != nil {
