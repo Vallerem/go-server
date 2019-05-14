@@ -5,56 +5,53 @@ import (
 
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
+	m "github.com/me/todo-go-server/src/models"
+	s "github.com/me/todo-go-server/src/shared"
 )
 
 type login struct {
-	Username string `form:"username" json:"username" binding:"required"`
+	Email    string `form:"email" json:"email" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`
-}
-
-// User demo
-type User struct {
-	UserName  string
-	FirstName string
-	LastName  string
 }
 
 func GinJwtMiddlewareHandler() *jwt.GinJWTMiddleware {
 	return &jwt.GinJWTMiddleware{
 		Realm:      "test zone",
 		Key:        []byte("verySecreteKey"),
-		Timeout:    time.Hour * 100,
+		Timeout:    time.Duration(24*365) * time.Hour,
 		MaxRefresh: time.Hour,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			if v, ok := data.(*User); ok {
+			if v, ok := data.(*m.UserModel); ok {
 				return jwt.MapClaims{
-					"userName": v.UserName,
+					"email": v.Email,
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var loginVals login
+			var user m.UserModel
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-			userID := loginVals.Username
-			password := loginVals.Password
 
-			if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
-				return &User{
-					UserName:  userID,
-					LastName:  "Test",
-					FirstName: "User",
-				}, nil
+			db := s.GetDB()
+			db.Where("email = ?", loginVals.Email).First(&user)
+
+			if user.CheckPassword(loginVals.Password) != nil {
+				return nil, jwt.ErrFailedAuthentication
+			} else {
+				return &m.UserModel{Email: user.Email}, nil
 			}
-
-			return nil, jwt.ErrFailedAuthentication
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			// if v, ok := data.(*User); ok && v.UserName == "admin" {
 			// 	return true
 			// }
+
+			// jwtClaims := jwt.ExtractClaims(c)
+			// fmt.Println(jwtClaims["userName"])
+			// fmt.Println(c.Request.Header.Get("Authorization"))
 
 			return true
 		},
