@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"os"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt"
@@ -15,15 +16,17 @@ type login struct {
 }
 
 func GinJwtMiddlewareHandler() *jwt.GinJWTMiddleware {
+	jwt_secret := os.Getenv("JWT_SECRET")
 	return &jwt.GinJWTMiddleware{
 		Realm:      "test zone",
-		Key:        []byte("verySecreteKey"),
+		Key:        []byte(jwt_secret),
 		Timeout:    time.Duration(24*365) * time.Hour,
 		MaxRefresh: time.Hour,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*m.UserModel); ok {
 				return jwt.MapClaims{
 					"email": v.Email,
+					"role":  "user",
 				}
 			}
 			return jwt.MapClaims{}
