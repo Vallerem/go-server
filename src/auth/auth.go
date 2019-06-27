@@ -26,7 +26,8 @@ func GinJwtMiddlewareHandler() *jwt.GinJWTMiddleware {
 			if v, ok := data.(*m.UserModel); ok {
 				return jwt.MapClaims{
 					"email": v.Email,
-					"role":  "user",
+					"ID":    v.ID,
+					"role":  "user", // TODO: v.Role
 				}
 			}
 			return jwt.MapClaims{}
@@ -44,7 +45,7 @@ func GinJwtMiddlewareHandler() *jwt.GinJWTMiddleware {
 			if user.CheckPassword(loginVals.Password) != nil {
 				return nil, jwt.ErrFailedAuthentication
 			} else {
-				return &m.UserModel{Email: user.Email}, nil
+				return &m.UserModel{Email: user.Email, ID: user.ID}, nil
 			}
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {

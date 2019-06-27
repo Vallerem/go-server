@@ -2,20 +2,23 @@ package models
 
 import (
 	"errors"
+	"time"
 
-	"github.com/jinzhu/gorm"
 	s "github.com/me/todo-go-server/src/shared"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserModel struct {
-	gorm.Model
-	FirstName    string  `gorm:"column:firstname"`
-	LastName     string  `gorm:"column:lastname"`
-	Email        string  `gorm:"column:email;unique_index;not null" json:"email"`
-	Bio          string  `gorm:"column:bio;size:1024"`
-	Image        *string `gorm:"column:image"`
-	PasswordHash string  `gorm:"column:password;not null" json:"password"`
+	ID           uint `gorm:"primary_key"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    *time.Time `sql:"index"`
+	FirstName    string     `gorm:"column:firstname"`
+	LastName     string     `gorm:"column:lastname"`
+	Email        string     `gorm:"column:email;unique_index;not null" json:"email"`
+	Bio          string     `gorm:"column:bio;size:1024"`
+	Image        *string    `gorm:"column:image"`
+	PasswordHash string     `gorm:"column:password;not null" json:"password"`
 	Todos        []TodoModel
 }
 
