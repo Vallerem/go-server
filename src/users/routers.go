@@ -10,7 +10,7 @@ import (
 
 func UsersRegistration(c *gin.Context) {
 	db := s.GetDB()
-	var user m.UserModel
+	var user m.User
 	c.BindJSON(&user)
 
 	password := user.PasswordHash

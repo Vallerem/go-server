@@ -16,7 +16,7 @@ import (
 )
 
 func Migrate(db *gorm.DB) {
-	db.AutoMigrate(&m.UserModel{}, &m.TodoModel{})
+	db.AutoMigrate(&m.User{}, &m.Todo{})
 }
 
 func main() {

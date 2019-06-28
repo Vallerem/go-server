@@ -3,17 +3,22 @@ package todos
 import (
 	"net/http"
 
+	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	s "github.com/me/todo-go-server/src/shared"
 	m "github.com/me/todo-go-server/src/models"
+	s "github.com/me/todo-go-server/src/shared"
 )
 
 // Fetch all Todos
 func FetchTodos(c *gin.Context) {
 	db := s.GetDB()
-	var todos []m.TodoModel
-	if err := db.Find(&todos).Error; err != nil {
+	var todos []m.Todo
+	jwtClaims := jwt.ExtractClaims(c)
+	userID := uint(jwtClaims["ID"].(float64))
+	user := m.User{ID: userID}
+
+	if err := db.Model(&user).Related(&todos).Error; err != nil {
 		if len(todos) <= 0 {
 			c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
 			return
@@ -22,7 +27,7 @@ func FetchTodos(c *gin.Context) {
 	} else {
 		var _todos []m.TransformedTodo
 		for _, item := range todos {
-			_todos = append(_todos, m.TransformedTodo{ID: item.ID, Title: item.Title, Completed: item.Completed})
+			_todos = append(_todos, m.TransformedTodo{ID: item.ID, Title: item.Title, Completed: item.Completed, UserID: item.UserID})
 		}
 		c.JSON(http.StatusOK, _todos)
 	}
@@ -31,9 +36,8 @@ func FetchTodos(c *gin.Context) {
 // Fetch single Todo
 func FetchSingleTodo(c *gin.Context) {
 	db := s.GetDB()
-	var todo m.TodoModel
+	var todo m.Todo
 	todoID := c.Param("id")
-
 	if err := db.First(&todo, todoID).Error; err != nil {
 		if todo.ID == 0 {
 			c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
@@ -48,7 +52,7 @@ func FetchSingleTodo(c *gin.Context) {
 // Create new todo
 func CreateTodo(c *gin.Context) {
 	db := s.GetDB()
-	var todo m.TodoModel
+	var todo m.Todo
 	c.BindJSON(&todo)
 	if err := db.Save(&todo).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Something went wrong"})
@@ -60,7 +64,7 @@ func CreateTodo(c *gin.Context) {
 // Update :id selected Todo
 func UpdateTodo(c *gin.Context) {
 	db := s.GetDB()
-	var jsonTodo, todo m.TodoModel
+	var jsonTodo, todo m.Todo
 	c.BindJSON(&jsonTodo)
 	todoID := c.Param("id")
 
@@ -86,7 +90,7 @@ func UpdateTodo(c *gin.Context) {
 // Delete :id selected Todo
 func DeleteTodo(c *gin.Context) {
 	db := s.GetDB()
-	var todo m.TodoModel
+	var todo m.Todo
 	todoID := c.Param("id")
 
 	if err := db.First(&todo, todoID).Error; err != nil {

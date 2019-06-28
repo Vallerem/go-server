@@ -23,7 +23,7 @@ func GinJwtMiddlewareHandler() *jwt.GinJWTMiddleware {
 		Timeout:    time.Duration(24*365) * time.Hour,
 		MaxRefresh: time.Hour,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			if v, ok := data.(*m.UserModel); ok {
+			if v, ok := data.(*m.User); ok {
 				return jwt.MapClaims{
 					"email": v.Email,
 					"ID":    v.ID,
@@ -34,7 +34,7 @@ func GinJwtMiddlewareHandler() *jwt.GinJWTMiddleware {
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var loginVals login
-			var user m.UserModel
+			var user m.User
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
@@ -45,7 +45,7 @@ func GinJwtMiddlewareHandler() *jwt.GinJWTMiddleware {
 			if user.CheckPassword(loginVals.Password) != nil {
 				return nil, jwt.ErrFailedAuthentication
 			} else {
-				return &m.UserModel{Email: user.Email, ID: user.ID}, nil
+				return &m.User{Email: user.Email, ID: user.ID}, nil
 			}
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
