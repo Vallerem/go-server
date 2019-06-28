@@ -10,9 +10,8 @@ import (
 
 	a "github.com/me/todo-go-server/src/auth"
 	m "github.com/me/todo-go-server/src/models"
+	r "github.com/me/todo-go-server/src/routes"
 	s "github.com/me/todo-go-server/src/shared"
-	t "github.com/me/todo-go-server/src/todos"
-	u "github.com/me/todo-go-server/src/users"
 )
 
 func Migrate(db *gorm.DB) {
@@ -45,15 +44,15 @@ func main() {
 	v1 := router.Group("/api/v1/todos")
 	v1.Use(authMiddleware.MiddlewareFunc())
 	{
-		v1.POST("/", t.CreateTodo)
-		v1.GET("/", t.FetchTodos)
-		v1.GET("/:id", t.FetchSingleTodo)
-		v1.PUT("/:id", t.UpdateTodo)
-		v1.DELETE("/:id", t.DeleteTodo)
+		v1.POST("/", r.CreateTodo)
+		v1.GET("/", r.FetchTodos)
+		v1.GET("/:id", r.FetchSingleTodo)
+		v1.PUT("/:id", r.UpdateTodo)
+		v1.DELETE("/:id", r.DeleteTodo)
 	}
 
 	router.POST("/login", authMiddleware.LoginHandler)
-	router.POST("/signup", u.UsersRegistration)
+	router.POST("/signup", r.UsersRegistration)
 
 	router.Run(":" + os.Getenv("PORT"))
 }
