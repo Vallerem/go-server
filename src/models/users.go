@@ -19,7 +19,7 @@ type User struct {
 	Bio          string     `gorm:"column:bio;size:1024"`
 	Image        *string    `gorm:"column:image"`
 	PasswordHash string     `gorm:"column:password;not null" json:"password"`
-	Todos        []Todo
+	Todos        []Todo     `gorm:"foreignkey:UserID"`
 }
 
 // func AutoMigrateUsers() {
@@ -46,11 +46,11 @@ func (u *User) CheckPassword(password string) error {
 	return bcrypt.CompareHashAndPassword(byteHashedPassword, bytePassword)
 }
 
-func FindOneUser(condition interface{}) (User, error) {
+func FindOneUser(id uint) (User, error) {
 	db := s.GetDB()
-	var model User
-	err := db.Where(condition).First(&model).Error
-	return model, err
+	user := User{ID: id}
+	err := db.Preload("Todos").First(&user).Error
+	return user, err
 }
 
 // You could input an User which will be saved in database returning with error info

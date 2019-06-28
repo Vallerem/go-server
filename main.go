@@ -54,5 +54,7 @@ func main() {
 	router.POST("/login", authMiddleware.LoginHandler)
 	router.POST("/signup", r.UsersRegistration)
 
+	router.GET("/users/:id", r.GetUser)
+
 	router.Run(":" + os.Getenv("PORT"))
 }
