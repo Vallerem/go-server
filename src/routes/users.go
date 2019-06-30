@@ -30,6 +30,6 @@ func GetUser(c *gin.Context) {
 	if data, err := m.FindOneUser(userID); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": err})
 	} else {
-		c.JSON(http.StatusCreated, data)
+		c.JSON(http.StatusOK, data)
 	}
 }
